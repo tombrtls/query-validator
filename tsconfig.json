@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "allowJs": false,
+        "target": "es5",
+        "rootDirs": [
+          "./"
+        ],
+        "moduleResolution": "node",
+        "lib": ["es2015", "es2017"],
+        "types": [
+          "jest",
+          "node"
+        ],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "sourceMap": true,
+        "allowUnreachableCode": false,
+        "noImplicitAny": true
+    },
+    "include": [
+      "lib/*",
+      "test/*"
+    ],
+    "exclude": [
+      "node_modules/*",
+      "coverage/*",
+      "dist/*"
+    ]
+}
