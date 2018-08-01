@@ -9,7 +9,9 @@ export interface IValidationResult<T> {
   isValid: boolean
 
   match<U>(validationPattern: IValidationPattern<T, U>): U
-  combine<TOther>(validation: IValidationResult<TOther>): IValidationResult<[T, TOther]>
+  combine<U>(validation: IValidationResult<U>): IValidationResult<[T, U]>
+  map<U>(func: (input: T) => U): IValidationResult<U>
+  flatMap<U>(func: (input: T) => IValidationResult<U>): IValidationResult<U>
 }
 
 export class ValidationSuccess<T> implements IValidationResult<T> {
@@ -24,11 +26,19 @@ export class ValidationSuccess<T> implements IValidationResult<T> {
     return validationPattern.Success(this.result)
   }
 
-  public combine<TOther>(otherValidation: IValidationResult<TOther>): IValidationResult<[T, TOther]> {
-    return otherValidation.match<IValidationResult<[T, TOther]>>({
-      Success: (result) => new ValidationSuccess<[T, TOther]>([this.result, result]),
-      Failure: (error) => new ValidationFailure<[T, TOther]>(error)
+  public combine<U>(otherValidation: IValidationResult<U>): IValidationResult<[T, U]> {
+    return otherValidation.match<IValidationResult<[T, U]>>({
+      Success: (result) => new ValidationSuccess<[T, U]>([this.result, result]),
+      Failure: (error) => new ValidationFailure<[T, U]>(error)
     })
+  }
+
+  public map<U>(func: (input: T) => U): IValidationResult<U> {
+    return new ValidationSuccess(func(this.result))
+  }
+
+  public flatMap<U>(func: (input: T) => IValidationResult<U>): IValidationResult<U> {
+    return func(this.result)
   }
 }
 
@@ -49,11 +59,19 @@ export class ValidationFailure<T> implements IValidationResult<T> {
     return validationPattern.Failure(this.error)
   }
 
-  public combine<TOther>(otherValidation: IValidationResult<TOther>): IValidationResult<[T, TOther]> {
+  public combine<U>(otherValidation: IValidationResult<U>): IValidationResult<[T, U]> {
     return otherValidation.match({
-      Success: (result) => new ValidationFailure<[T, TOther]>(this.error),
-      Failure: (error) => new ValidationFailure<[T, TOther]>([this.error, error])
+      Success: (result) => new ValidationFailure<[T, U]>(this.error),
+      Failure: (error) => new ValidationFailure<[T, U]>([this.error, error])
     })
+  }
+
+  public map<U>(func: (input: T) => U): IValidationResult<U> {
+    return new ValidationFailure(this.error)
+  }
+
+  public flatMap<U>(func: (input: T) => IValidationResult<U>): IValidationResult<U> {
+    return new ValidationFailure(this.error)
   }
 }
 
