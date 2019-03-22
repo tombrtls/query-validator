@@ -14,6 +14,7 @@ export interface IValidationResult<T> {
   flatMap<U>(func: (input: T) => IValidationResult<U>): IValidationResult<U>
 }
 
+
 export class ValidationSuccess<T> implements IValidationResult<T> {
   public isValid: boolean = true
   public result: T
@@ -61,7 +62,7 @@ export class ValidationFailure<T> implements IValidationResult<T> {
 
   public combine<U>(otherValidation: IValidationResult<U>): IValidationResult<[T, U]> {
     return otherValidation.match({
-      Success: (result) => new ValidationFailure<[T, U]>(this.error),
+      Success: (_) => new ValidationFailure<[T, U]>(this.error),
       Failure: (error) => new ValidationFailure<[T, U]>([this.error, error])
     })
   }
